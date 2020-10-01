@@ -1,9 +1,37 @@
 language: ruby
 
+env:
+  global:
+    - KNAPSACK_PRO_CI_NODE_TOTAL=2
+    - KNAPSACK_PRO_LOG_LEVEL=debug
+    - KNAPSACK_PRO_FIXED_QUEUE_SPLIT=true
+  jobs:
+    - KNAPSACK_PRO_CI_NODE_INDEX=0
+    - KNAPSACK_PRO_CI_NODE_INDEX=1
+
 script:
-  - set -o pipefail
   - bundle install
 
-  - curl -o tr-reporter https://downloads.testrecall.com/r/latest/reporter.linux-amd64
-  - chmod +x tr-reporter
-  - bundle exec rspec --format RspecJunitFormatter --out report.xml | ./tr-reporter -file report.xml
+  - bundle exec rake "knapsack_pro:queue:rspec[--format documentation --format RspecJunitFormatter --out rspec_$KNAPSACK_PRO_CI_NODE_INDEX.xml]"
+
+before_script:
+  - curl -o reporter https://downloads.testrecall.com/r/latest/reporter.linux-amd64
+  - chmod +x reporter
+
+after_success:
+  - ./reporter -multi partial
+
+after_failure:
+  - ./reporter -multi after
+
+stages:
+  - setup
+  - test
+  - upload
+
+jobs:
+  include:
+    - stage: setup
+      script: ./reporter -multi before
+    - stage: upload
+      script: ./reporter -multi after
