@@ -14,8 +14,7 @@ script:
   - bundle exec rake "knapsack_pro:queue:rspec[--format documentation --format RspecJunitFormatter --out rspec_$KNAPSACK_PRO_CI_NODE_INDEX.xml]"
 
 before_script:
-  - curl -o reporter https://get.testrecall.com/r/latest/reporter.linux-amd64
-  - chmod +x reporter
+  - curl -sL https://get.testrecall.com/reporter | bash
 
 after_success:
   - ./reporter -multi partial

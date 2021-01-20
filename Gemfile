@@ -5,4 +5,5 @@ gem "rspec_junit_formatter", "~> 0.4.1"
 
 group :test, :development do
   gem 'knapsack_pro'
+  gem 'faker'
 end
